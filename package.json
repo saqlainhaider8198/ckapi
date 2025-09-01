@@ -2,7 +2,11 @@
   "name": "cookie-to-sheets",
   "version": "1.0.0",
   "description": "Store cookies in Google Sheets and retrieve as JSON",
+  "type": "module",
   "dependencies": {
-    "google-spreadsheet": "^3.3.0"
+    "google-spreadsheet": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
