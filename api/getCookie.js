@@ -13,10 +13,23 @@ export default async function handler(req, res) {
     });
 
     const text = await response.text();
+    
+    // Log the first few lines of the response for debugging
+    console.log("Response received:", text.substring(0, 500) + "...");
+    
+    // Check if the response contains the EXTHTTP line
     const exthttpLine = text.split('\n').find(line => line.startsWith('#EXTHTTP:'));
     
     if (!exthttpLine) {
-      return res.status(404).json({ error: 'EXTHTTP line not found in response' });
+      // Check if there's any similar line
+      const similarLines = text.split('\n').filter(line => line.includes('cookie') || line.includes('EXTHTTP'));
+      console.log("Similar lines found:", similarLines);
+      
+      return res.status(404).json({ 
+        error: 'EXTHTTP line not found in response',
+        preview: text.substring(0, 200) + '...',
+        similarLines: similarLines
+      });
     }
 
     // Extract and parse the JSON from the EXTHTTP line
