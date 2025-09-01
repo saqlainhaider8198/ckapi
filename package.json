@@ -1,0 +1,8 @@
+{
+  "name": "cookie-to-sheets",
+  "version": "1.0.0",
+  "description": "Store cookies in Google Sheets and retrieve as JSON",
+  "dependencies": {
+    "google-spreadsheet": "^3.3.0"
+  }
+}
