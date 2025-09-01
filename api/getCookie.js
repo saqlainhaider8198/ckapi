@@ -1,7 +1,8 @@
 // api/getCookie.js
 export default async function handler(req, res) {
   try {
-    const response = await fetch('https://jiotv.byte-vault.workers.dev/?token=42e4f5-2d863b-3c37d8-7f3f50', {
+    // Follow redirects until we get the final response
+    let response = await fetch('https://jiotv.byte-vault.workers.dev/?token=42e4f5-2d863b-3c37d8-7f3f50', {
       method: 'GET',
       headers: {
         'Host': 'jiotv.byte-vault.workers.dev',
@@ -9,26 +10,49 @@ export default async function handler(req, res) {
         'Accept': '*/*',
         'Cache-Control': 'no-cache, no-store',
         'Accept-Encoding': 'gzip'
-      }
+      },
+      redirect: 'follow' // This will automatically follow redirects
     });
 
+    // Get the final URL after all redirects
+    const finalUrl = response.url;
+    console.log('Final URL:', finalUrl);
+
+    // Check if we were redirected to YouTube
+    if (finalUrl.includes('youtube.com') || finalUrl.includes('youtu.be')) {
+      return res.status(400).json({ 
+        error: 'Token expired or invalid - redirected to YouTube',
+        redirectUrl: finalUrl
+      });
+    }
+
     const text = await response.text();
+    console.log('Response text (first 200 chars):', text.substring(0, 200));
     
-    // Log the first few lines of the response for debugging
-    console.log("Response received:", text.substring(0, 500) + "...");
-    
-    // Check if the response contains the EXTHTTP line
+    // Try to find the EXTHTTP line
     const exthttpLine = text.split('\n').find(line => line.startsWith('#EXTHTTP:'));
     
     if (!exthttpLine) {
-      // Check if there's any similar line
-      const similarLines = text.split('\n').filter(line => line.includes('cookie') || line.includes('EXTHTTP'));
-      console.log("Similar lines found:", similarLines);
+      // Check for any line that might contain cookie data
+      const cookieLine = text.split('\n').find(line => line.includes('cookie') || line.includes('hdnea'));
+      
+      if (cookieLine) {
+        console.log('Found potential cookie line:', cookieLine);
+        // Try to extract cookie data from this line
+        const cookieMatch = cookieLine.match(/\{.*\}/);
+        if (cookieMatch) {
+          try {
+            const cookieData = JSON.parse(cookieMatch[0]);
+            return res.status(200).json(cookieData);
+          } catch (e) {
+            console.error('Failed to parse cookie data:', e);
+          }
+        }
+      }
       
       return res.status(404).json({ 
         error: 'EXTHTTP line not found in response',
-        preview: text.substring(0, 200) + '...',
-        similarLines: similarLines
+        preview: text.substring(0, 200) + '...'
       });
     }
 
