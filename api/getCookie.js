@@ -19,9 +19,15 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'EXTHTTP line not found in response' });
     }
 
-    const cookieData = JSON.parse(exthttpLine.replace('#EXTHTTP:', ''));
+    // Extract and parse the JSON from the EXTHTTP line
+    const jsonString = exthttpLine.replace('#EXTHTTP:', '');
+    const cookieData = JSON.parse(jsonString);
+    
+    // Set response headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
+    
+    // Return the cookie data in JSON format
     res.status(200).json(cookieData);
   } catch (error) {
     console.error('Error:', error.message);
@@ -29,5 +35,7 @@ export default async function handler(req, res) {
   }
 }
 
-// Remove the runtime config or use one of the supported values
-// Vercel will automatically use the appropriate Node.js version
+// Use the correct runtime configuration for Vercel
+export const config = {
+  runtime: 'nodejs'
+};
