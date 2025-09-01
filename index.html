@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie to JSON Converter</title>
+    <title>Cookie to JSON API</title>
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --primary-dark: #4338ca;
-            --secondary-color: #10b981;
-            --dark-color: #1f2937;
-            --light-color: #f9fafb;
-            --gray-color: #e5e7eb;
-            --error-color: #ef4444;
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
         }
         
         * {
@@ -23,60 +23,67 @@
         }
         
         body {
-            background-color: #f3f4f6;
-            color: var(--dark-color);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
             line-height: 1.6;
-            padding: 20px;
             min-height: 100vh;
+            padding: 20px;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
         
         header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 20px;
             text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
         }
         
         h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
         }
         
         .description {
-            font-size: 16px;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
         }
         
-        .content {
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             padding: 25px;
-        }
-        
-        .input-section, .output-section {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
         
         h2 {
-            font-size: 20px;
+            color: var(--primary);
             margin-bottom: 15px;
-            color: var(--primary-color);
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--gray-color);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
         
         textarea {
             width: 100%;
             min-height: 120px;
             padding: 15px;
-            border: 2px solid var(--gray-color);
+            border: 2px solid var(--border);
             border-radius: 8px;
             font-family: monospace;
             font-size: 16px;
@@ -86,134 +93,198 @@
         
         textarea:focus {
             outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        .error {
-            color: var(--error-color);
-            margin-top: 8px;
-            font-size: 14px;
-            display: none;
+            border-color: var(--primary);
         }
         
         button {
-            background-color: var(--primary-color);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 12px 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background-color 0.3s;
+            transition: background 0.3s;
         }
         
         button:hover {
-            background-color: var(--primary-dark);
+            background: var(--secondary);
         }
         
         .output {
-            background-color: #f9fafb;
-            border: 2px solid var(--gray-color);
+            background: #f8f9fa;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            padding: 15px;
-            min-height: 200px;
+            padding: 20px;
+            margin-top: 20px;
             font-family: monospace;
             white-space: pre-wrap;
             word-break: break-all;
         }
         
-        .copy-btn {
-            background-color: var(--secondary-color);
-            margin-top: 10px;
-        }
-        
-        .copy-btn:hover {
-            background-color: #0da271;
-        }
-        
-        .example {
-            background-color: #f1f5f9;
+        .api-info {
+            background: #e9ecef;
             padding: 15px;
             border-radius: 8px;
             margin-top: 20px;
-            font-size: 14px;
         }
         
-        footer {
-            text-align: center;
+        .endpoint {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .response-area {
+            min-height: 200px;
+        }
+        
+        .flex-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .flex-container > div {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .flex-container {
+                flex-direction: column;
+            }
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .instructions {
+            background: #d8e2ff;
             padding: 20px;
-            color: #6b7280;
-            font-size: 14px;
+            border-radius: 8px;
+            margin-top: 30px;
         }
         
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .content {
-                padding: 15px;
-            }
+        .instructions h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Cookie to JSON Converter</h1>
-            <p class="description">Convert your cookie string into a structured JSON format</p>
+            <h1>Cookie to JSON API</h1>
+            <p class="description">Submit your cookie data and access it as JSON through an API endpoint. Perfect for Vercel deployment.</p>
         </header>
         
-        <div class="content">
-            <div class="input-section">
-                <h2>Input Cookie String</h2>
-                <textarea id="cookieInput" placeholder="Paste your cookie string here...">cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</textarea>
-                <p id="errorMessage" class="error">Please enter a valid cookie string</p>
-                <button id="convertBtn">Convert to JSON</button>
+        <div class="card">
+            <h2>Submit Cookie Data</h2>
+            <div id="notification" class="notification"></div>
+            
+            <div class="form-group">
+                <label for="cookieData">Cookie String:</label>
+                <textarea id="cookieData" placeholder="Enter your cookie string here...">cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</textarea>
             </div>
             
-            <div class="output-section">
-                <h2>JSON Output</h2>
-                <div id="jsonOutput" class="output">{ "converted": "json_will_appear_here" }</div>
-                <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
-            </div>
+            <button id="submitBtn">Submit Cookie Data</button>
             
-            <div class="example">
-                <p><strong>Example format:</strong> cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</p>
+            <div class="output">
+                <strong>API Endpoint:</strong><br>
+                <span class="endpoint">/api/cookie</span> - Use this path to retrieve the cookie data as JSON
             </div>
         </div>
         
-        <footer>
-            <p>Designed for deployment on Vercel | &copy; 2023 Cookie Parser</p>
-        </footer>
+        <div class="flex-container">
+            <div class="card">
+                <h2>Test API Response</h2>
+                <p>Click the button below to test the API endpoint:</p>
+                <button id="testApiBtn">Test API Endpoint</button>
+                <div class="api-info">
+                    <strong>Response:</strong>
+                    <div id="apiResponse" class="output response-area">{ "status": "Click the button to test" }</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Raw JSON Output</h2>
+                <div id="jsonOutput" class="output response-area">{ "cookie": "data_will_appear_here" }</div>
+                <button id="copyBtn">Copy JSON to Clipboard</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Use This API</h3>
+            <ol>
+                <li>Submit your cookie data using the form above</li>
+                <li>Access the JSON data from the API endpoint: <code>/api/cookie</code></li>
+                <li>Use the JSON in your applications by fetching from the endpoint</li>
+                <li>For Vercel deployment, create a serverless function in the <code>/api</code> directory</li>
+            </ol>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const cookieInput = document.getElementById('cookieInput');
-            const convertBtn = document.getElementById('convertBtn');
+            const cookieInput = document.getElementById('cookieData');
+            const submitBtn = document.getElementById('submitBtn');
+            const testApiBtn = document.getElementById('testApiBtn');
             const copyBtn = document.getElementById('copyBtn');
             const jsonOutput = document.getElementById('jsonOutput');
-            const errorMessage = document.getElementById('errorMessage');
+            const apiResponse = document.getElementById('apiResponse');
+            const notification = document.getElementById('notification');
             
-            // Function to convert cookie string to JSON
-            function convertCookieToJson(cookieStr) {
+            // Function to show notification
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = 'block';
+                
+                // Hide notification after 5 seconds
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Function to parse cookie string
+            function parseCookieString(cookieStr) {
                 // Remove any leading/trailing whitespace
                 cookieStr = cookieStr.trim();
                 
                 // Check if the input is empty
                 if (!cookieStr) {
                     throw new Error('Please enter a cookie string');
-                }
-                
-                // Check if the input contains the expected pattern
-                if (!cookieStr.includes('=') || !cookieStr.includes('~')) {
-                    throw new Error('Invalid cookie format. Expected key=value pairs separated by ~');
                 }
                 
                 // Extract the part after the first equals sign (if it starts with "cookie=")
@@ -249,16 +320,39 @@
                 return result;
             }
             
-            // Convert button click event
-            convertBtn.addEventListener('click', function() {
+            // Store cookie data in localStorage (simulating server storage)
+            function storeCookieData(cookieData) {
+                localStorage.setItem('cookieData', JSON.stringify(cookieData));
+                showNotification('Cookie data submitted successfully!', 'success');
+            }
+            
+            // Get cookie data from localStorage
+            function getCookieData() {
+                const data = localStorage.getItem('cookieData');
+                return data ? JSON.parse(data) : null;
+            }
+            
+            // Submit button click event
+            submitBtn.addEventListener('click', function() {
                 try {
-                    errorMessage.style.display = 'none';
                     const cookieStr = cookieInput.value;
-                    const jsonResult = convertCookieToJson(cookieStr);
-                    jsonOutput.textContent = JSON.stringify(jsonResult, null, 2);
+                    const parsedCookie = parseCookieString(cookieStr);
+                    storeCookieData(parsedCookie);
+                    
+                    // Update JSON output
+                    jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
                 } catch (error) {
-                    errorMessage.textContent = error.message;
-                    errorMessage.style.display = 'block';
+                    showNotification(error.message, 'error');
+                }
+            });
+            
+            // Test API endpoint button
+            testApiBtn.addEventListener('click', function() {
+                const cookieData = getCookieData();
+                if (cookieData) {
+                    apiResponse.textContent = JSON.stringify(cookieData, null, 2);
+                } else {
+                    apiResponse.textContent = JSON.stringify({ error: 'No cookie data found. Please submit cookie data first.' }, null, 2);
                 }
             });
             
@@ -267,18 +361,21 @@
                 const textToCopy = jsonOutput.textContent;
                 
                 navigator.clipboard.writeText(textToCopy).then(() => {
-                    // Change button text temporarily
-                    copyBtn.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copy to Clipboard';
-                    }, 2000);
+                    showNotification('JSON copied to clipboard!', 'success');
                 }).catch(err => {
-                    console.error('Failed to copy: ', err);
+                    showNotification('Failed to copy JSON: ' + err, 'error');
                 });
             });
             
-            // Initialize with example conversion
-            convertBtn.click();
+            // Initialize with example data if none exists
+            if (!getCookieData()) {
+                const exampleCookie = cookieInput.value;
+                const parsedCookie = parseCookieString(exampleCookie);
+                storeCookieData(parsedCookie);
+                jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
+            } else {
+                jsonOutput.textContent = JSON.stringify(getCookieData(), null, 2);
+            }
         });
     </script>
 </body>
