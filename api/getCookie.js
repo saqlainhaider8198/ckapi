@@ -29,6 +29,5 @@ export default async function handler(req, res) {
   }
 }
 
-export const config = {
-  runtime: 'nodejs22.x'
-};
+// Remove the runtime config or use one of the supported values
+// Vercel will automatically use the appropriate Node.js version
