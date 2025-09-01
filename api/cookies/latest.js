@@ -1,4 +1,4 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
+import { GoogleSpreadsheet } from 'google-spreadsheet';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Initialize the sheet - using your specific Google Sheet ID
+    // Initialize the sheet
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
     
     // Authenticate with Google Sheets
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     });
     
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0]; // Using the first sheet
+    const sheet = doc.sheetsByIndex[0];
     
     // Get all rows
     const rows = await sheet.getRows();
@@ -39,6 +39,6 @@ export default async function handler(req, res) {
     res.status(200).json(cookie);
   } catch (error) {
     console.error('Error retrieving latest cookie:', error);
-    res.status(500).json({ error: 'Failed to retrieve latest cookie' });
+    res.status(500).json({ error: 'Failed to retrieve latest cookie: ' + error.message });
   }
 }
