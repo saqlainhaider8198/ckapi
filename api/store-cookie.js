@@ -1,4 +1,4 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
+import { GoogleSpreadsheet } from 'google-spreadsheet';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   try {
     const cookieData = req.body;
     
-    // Initialize the sheet - using your specific Google Sheet ID
+    // Initialize the sheet
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
     
     // Authenticate with Google Sheets
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     });
     
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0]; // Using the first sheet
+    const sheet = doc.sheetsByIndex[0];
     
     // Add headers if sheet is empty
     if (sheet.rowCount === 0) {
@@ -33,9 +33,12 @@ export default async function handler(req, res) {
       'Parsed Data': JSON.stringify(cookieData.parsed)
     });
     
-    res.status(200).json({ message: 'Cookie stored successfully' });
+    res.status(200).json({ 
+      message: 'Cookie stored successfully',
+      sheetUrl: `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/edit` 
+    });
   } catch (error) {
     console.error('Error storing cookie:', error);
-    res.status(500).json({ error: 'Failed to store cookie' });
+    res.status(500).json({ error: 'Failed to store cookie: ' + error.message });
   }
 }
