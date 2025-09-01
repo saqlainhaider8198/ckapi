@@ -3,99 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JioTV Cookie Extractor</title>
+    <title>Cookie to JSON Converter</title>
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+            --gray-color: #e5e7eb;
+            --error-color: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f3f4f6;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        .container {
             background-color: white;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
         h1 {
-            color: #0070f3;
-            margin-top: 0;
+            font-size: 28px;
+            margin-bottom: 8px;
         }
+        
+        .description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 25px;
+        }
+        
+        .input-section, .output-section {
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-color);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid var(--gray-color);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .error {
+            color: var(--error-color);
+            margin-top: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        
         button {
-            background-color: #0070f3;
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.2s;
+            font-weight: 600;
+            transition: background-color 0.3s;
         }
+        
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--primary-dark);
         }
-        .result {
-            margin-top: 20px;
+        
+        .output {
+            background-color: #f9fafb;
+            border: 2px solid var(--gray-color);
+            border-radius: 8px;
             padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 4px solid #0070f3;
-            overflow-x: auto;
-        }
-        pre {
+            min-height: 200px;
+            font-family: monospace;
             white-space: pre-wrap;
             word-break: break-all;
         }
-        .loading {
-            display: none;
-            margin-left: 10px;
+        
+        .copy-btn {
+            background-color: var(--secondary-color);
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #0da271;
+        }
+        
+        .example {
+            background-color: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>JioTV Cookie Extractor</h1>
-        <p>This tool fetches the cookie data from the JioTV API and returns it in JSON format.</p>
+        <header>
+            <h1>Cookie to JSON Converter</h1>
+            <p class="description">Convert your cookie string into a structured JSON format</p>
+        </header>
         
-        <button id="fetchButton">Fetch Cookie Data</button>
-        <span class="loading" id="loading">Loading...</span>
-        
-        <div class="result" id="result" style="display: none;">
-            <h3>Cookie Data:</h3>
-            <pre id="cookieData"></pre>
+        <div class="content">
+            <div class="input-section">
+                <h2>Input Cookie String</h2>
+                <textarea id="cookieInput" placeholder="Paste your cookie string here...">cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</textarea>
+                <p id="errorMessage" class="error">Please enter a valid cookie string</p>
+                <button id="convertBtn">Convert to JSON</button>
+            </div>
+            
+            <div class="output-section">
+                <h2>JSON Output</h2>
+                <div id="jsonOutput" class="output">{ "converted": "json_will_appear_here" }</div>
+                <button id="copyBtn" class="copy-btn">Copy to Clipboard</button>
+            </div>
+            
+            <div class="example">
+                <p><strong>Example format:</strong> cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</p>
+            </div>
         </div>
+        
+        <footer>
+            <p>Designed for deployment on Vercel | &copy; 2023 Cookie Parser</p>
+        </footer>
     </div>
 
     <script>
-        document.getElementById('fetchButton').addEventListener('click', async () => {
-            const button = document.getElementById('fetchButton');
-            const loading = document.getElementById('loading');
-            const result = document.getElementById('result');
-            const cookieData = document.getElementById('cookieData');
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieInput = document.getElementById('cookieInput');
+            const convertBtn = document.getElementById('convertBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const jsonOutput = document.getElementById('jsonOutput');
+            const errorMessage = document.getElementById('errorMessage');
             
-            button.disabled = true;
-            loading.style.display = 'inline';
-            result.style.display = 'none';
-            
-            try {
-                const response = await fetch('/api/getCookie');
-                const data = await response.json();
+            // Function to convert cookie string to JSON
+            function convertCookieToJson(cookieStr) {
+                // Remove any leading/trailing whitespace
+                cookieStr = cookieStr.trim();
                 
-                if (response.ok) {
-                    cookieData.textContent = JSON.stringify(data, null, 2);
-                    result.style.display = 'block';
-                } else {
-                    throw new Error(data.error || 'Failed to fetch cookie data');
+                // Check if the input is empty
+                if (!cookieStr) {
+                    throw new Error('Please enter a cookie string');
                 }
-            } catch (error) {
-                cookieData.textContent = `Error: ${error.message}`;
-                result.style.display = 'block';
-            } finally {
-                button.disabled = false;
-                loading.style.display = 'none';
+                
+                // Check if the input contains the expected pattern
+                if (!cookieStr.includes('=') || !cookieStr.includes('~')) {
+                    throw new Error('Invalid cookie format. Expected key=value pairs separated by ~');
+                }
+                
+                // Extract the part after the first equals sign (if it starts with "cookie=")
+                if (cookieStr.startsWith('cookie=')) {
+                    cookieStr = cookieStr.substring(7);
+                }
+                
+                // Split into name and value parts
+                const firstEqIndex = cookieStr.indexOf('=');
+                if (firstEqIndex === -1) {
+                    throw new Error('Invalid cookie format');
+                }
+                
+                const cookieName = cookieStr.substring(0, firstEqIndex);
+                const cookieValue = cookieStr.substring(firstEqIndex + 1);
+                
+                // Parse the cookie value
+                const parts = cookieValue.split('~');
+                const result = {
+                    cookieName: cookieName,
+                    parsed: {}
+                };
+                
+                parts.forEach(part => {
+                    const eqIndex = part.indexOf('=');
+                    if (eqIndex !== -1) {
+                        const key = part.substring(0, eqIndex);
+                        const value = part.substring(eqIndex + 1);
+                        result.parsed[key] = value;
+                    }
+                });
+                
+                return result;
             }
+            
+            // Convert button click event
+            convertBtn.addEventListener('click', function() {
+                try {
+                    errorMessage.style.display = 'none';
+                    const cookieStr = cookieInput.value;
+                    const jsonResult = convertCookieToJson(cookieStr);
+                    jsonOutput.textContent = JSON.stringify(jsonResult, null, 2);
+                } catch (error) {
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                }
+            });
+            
+            // Copy button click event
+            copyBtn.addEventListener('click', function() {
+                const textToCopy = jsonOutput.textContent;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Change button text temporarily
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy to Clipboard';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+            
+            // Initialize with example conversion
+            convertBtn.click();
         });
     </script>
 </body>
