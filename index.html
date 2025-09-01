@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie to JSON API</title>
+    <title>Cookie to Google Sheets API</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -200,17 +200,33 @@
             border-radius: 4px;
             font-family: monospace;
         }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Cookie to JSON API</h1>
-            <p class="description">Submit your cookie data and access it as JSON through an API endpoint. Perfect for Vercel deployment.</p>
+            <h1>Cookie to Google Sheets API</h1>
+            <p class="description">Submit your cookie data to Google Sheets and retrieve it as JSON through API endpoints</p>
         </header>
         
         <div class="card">
-            <h2>Submit Cookie Data</h2>
+            <h2>Submit Cookie Data to Google Sheets</h2>
             <div id="notification" class="notification"></div>
             
             <div class="form-group">
@@ -218,11 +234,13 @@
                 <textarea id="cookieData" placeholder="Enter your cookie string here...">cookie=__hdnea__=st=1756522179~exp=1756608579~acl=/*~hmac=1d00ad659713ab5e20e1c06d1012a53801146c944a46113bbd23ee0fdeb9d947</textarea>
             </div>
             
-            <button id="submitBtn">Submit Cookie Data</button>
+            <button id="submitBtn">Submit to Google Sheets</button>
+            <div class="loader" id="loader"></div>
             
-            <div class="output">
-                <strong>API Endpoint:</strong><br>
-                <span class="endpoint">/api/cookie</span> - Use this path to retrieve the cookie data as JSON
+            <div class="api-info">
+                <strong>API Endpoints:</strong><br>
+                <span class="endpoint">GET /api/cookies</span> - Retrieve all cookies as JSON<br>
+                <span class="endpoint">GET /api/cookies/latest</span> - Retrieve the latest cookie
             </div>
         </div>
         
@@ -230,7 +248,7 @@
             <div class="card">
                 <h2>Test API Response</h2>
                 <p>Click the button below to test the API endpoint:</p>
-                <button id="testApiBtn">Test API Endpoint</button>
+                <button id="testApiBtn">Test GET /api/cookies</button>
                 <div class="api-info">
                     <strong>Response:</strong>
                     <div id="apiResponse" class="output response-area">{ "status": "Click the button to test" }</div>
@@ -245,12 +263,13 @@
         </div>
         
         <div class="instructions">
-            <h3>How to Use This API</h3>
+            <h3>How to Set Up Google Sheets Integration</h3>
             <ol>
-                <li>Submit your cookie data using the form above</li>
-                <li>Access the JSON data from the API endpoint: <code>/api/cookie</code></li>
-                <li>Use the JSON in your applications by fetching from the endpoint</li>
-                <li>For Vercel deployment, create a serverless function in the <code>/api</code> directory</li>
+                <li>Create a new Google Sheet</li>
+                <li>Go to Tools → Script editor</li>
+                <li>Replace the default code with the Google Apps Script provided below</li>
+                <li>Deploy the script as a Web App with permissions</li>
+                <li>Update the script URL in the Vercel serverless function</li>
             </ol>
         </div>
     </div>
@@ -264,6 +283,7 @@
             const jsonOutput = document.getElementById('jsonOutput');
             const apiResponse = document.getElementById('apiResponse');
             const notification = document.getElementById('notification');
+            const loader = document.getElementById('loader');
             
             // Function to show notification
             function showNotification(message, type) {
@@ -305,7 +325,9 @@
                 const parts = cookieValue.split('~');
                 const result = {
                     cookieName: cookieName,
-                    parsed: {}
+                    parsed: {},
+                    raw: cookieStr,
+                    timestamp: new Date().toISOString()
                 };
                 
                 parts.forEach(part => {
@@ -320,39 +342,54 @@
                 return result;
             }
             
-            // Store cookie data in localStorage (simulating server storage)
-            function storeCookieData(cookieData) {
-                localStorage.setItem('cookieData', JSON.stringify(cookieData));
-                showNotification('Cookie data submitted successfully!', 'success');
-            }
-            
-            // Get cookie data from localStorage
-            function getCookieData() {
-                const data = localStorage.getItem('cookieData');
-                return data ? JSON.parse(data) : null;
-            }
-            
             // Submit button click event
-            submitBtn.addEventListener('click', function() {
+            submitBtn.addEventListener('click', async function() {
                 try {
                     const cookieStr = cookieInput.value;
                     const parsedCookie = parseCookieString(cookieStr);
-                    storeCookieData(parsedCookie);
                     
-                    // Update JSON output
-                    jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
+                    // Show loader
+                    loader.style.display = 'block';
+                    submitBtn.disabled = true;
+                    
+                    // Send to Google Sheets via serverless function
+                    const response = await fetch('/api/store-cookie', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(parsedCookie)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showNotification('Cookie data submitted to Google Sheets successfully!', 'success');
+                        jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
+                    } else {
+                        throw new Error(result.error || 'Failed to store cookie');
+                    }
                 } catch (error) {
                     showNotification(error.message, 'error');
+                } finally {
+                    loader.style.display = 'none';
+                    submitBtn.disabled = false;
                 }
             });
             
             // Test API endpoint button
-            testApiBtn.addEventListener('click', function() {
-                const cookieData = getCookieData();
-                if (cookieData) {
-                    apiResponse.textContent = JSON.stringify(cookieData, null, 2);
-                } else {
-                    apiResponse.textContent = JSON.stringify({ error: 'No cookie data found. Please submit cookie data first.' }, null, 2);
+            testApiBtn.addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/api/cookies');
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        apiResponse.textContent = JSON.stringify(data, null, 2);
+                    } else {
+                        apiResponse.textContent = JSON.stringify({ error: data.error }, null, 2);
+                    }
+                } catch (error) {
+                    apiResponse.textContent = JSON.stringify({ error: error.message }, null, 2);
                 }
             });
             
@@ -367,15 +404,10 @@
                 });
             });
             
-            // Initialize with example data if none exists
-            if (!getCookieData()) {
-                const exampleCookie = cookieInput.value;
-                const parsedCookie = parseCookieString(exampleCookie);
-                storeCookieData(parsedCookie);
-                jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
-            } else {
-                jsonOutput.textContent = JSON.stringify(getCookieData(), null, 2);
-            }
+            // Initialize with example data
+            const exampleCookie = cookieInput.value;
+            const parsedCookie = parseCookieString(exampleCookie);
+            jsonOutput.textContent = JSON.stringify(parsedCookie, null, 2);
         });
     </script>
 </body>
