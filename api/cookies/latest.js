@@ -1,7 +1,7 @@
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.openById('1tBlsOOgRrSKEqRRHidK3NTXB2Hd7N-cIW8JlCnRo4-E').getActiveSheet();
+    const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getActiveSheet();
     
     // Add headers if sheet is empty
     if (sheet.getLastRow() === 0) {
