@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JioTV Cookie Extractor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0070f3;
+            margin-top: 0;
+        }
+        button {
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #0070f3;
+            overflow-x: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JioTV Cookie Extractor</h1>
+        <p>This tool fetches the cookie data from the JioTV API and returns it in JSON format.</p>
+        
+        <button id="fetchButton">Fetch Cookie Data</button>
+        <span class="loading" id="loading">Loading...</span>
+        
+        <div class="result" id="result" style="display: none;">
+            <h3>Cookie Data:</h3>
+            <pre id="cookieData"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', async () => {
+            const button = document.getElementById('fetchButton');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const cookieData = document.getElementById('cookieData');
+            
+            button.disabled = true;
+            loading.style.display = 'inline';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/getCookie');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    cookieData.textContent = JSON.stringify(data, null, 2);
+                    result.style.display = 'block';
+                } else {
+                    throw new Error(data.error || 'Failed to fetch cookie data');
+                }
+            } catch (error) {
+                cookieData.textContent = `Error: ${error.message}`;
+                result.style.display = 'block';
+            } finally {
+                button.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
